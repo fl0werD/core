@@ -20,6 +20,7 @@
 #include <core/amxx_access.h>
 #include <core/strings/examination.h>
 #include <cssdk/public/utils.h>
+#include <mhooks/amxxapi/amxxapi.h>
 #include <mhooks/metamod.h>
 
 using namespace core;
@@ -76,12 +77,8 @@ namespace
         return chain.CallNext(client, name, address, reject_reason);
     }
 
-    void OnPlayerAuth(const int index, const char* const auth)
+    void OnClientAuthorized(const AmxxClientAuthorizedMChain& chain, const int index, const char* const auth)
     {
-        if (!IsClient(index)) {
-            return;
-        }
-
         if (const auto* const client = type_conversion::EdictByIndex(index);
             IsBot(client, auth) || IsHltv(client, auth)) {
             g_no_flags[index] = 0;
@@ -90,12 +87,8 @@ namespace
         else {
             access_flags[index] = static_cast<int*>(PlayerPropAddress(index, amxx::PlayerProp::Flags));
         }
-    }
 
-    void OnMetaDetach(const MetaDetachMChain& chain)
-    {
-        amxx::UnregisterAuthFunc(OnPlayerAuth);
-        chain.CallNext();
+        chain.CallNext(index, auth);
     }
 }
 
@@ -109,10 +102,9 @@ namespace core::amxx_access
 
         FillAccessFlags();
         type_conversion::Init();
-        amxx::RegisterAuthFunc(OnPlayerAuth);
+        MHookAmxxClientAuthorized(DELEGATE_ARG<OnClientAuthorized>, HookChainPriority::Uninterruptable);
         MHookGameDllServerActivate(DELEGATE_ARG<OnServerActivatePost>, true, HookChainPriority::Uninterruptable);
         MHookGameDllClientConnect(DELEGATE_ARG<OnClientConnect>, false, HookChainPriority::Uninterruptable);
-        MHookMetaDetach(DELEGATE_ARG<OnMetaDetach>);
     }
 }
 #endif
