@@ -24,7 +24,7 @@
 #include <string>
 #include <utility>
 
-#if defined(CLANG_COMPILER) || (defined(_MSC_VER) && defined(__clang__))
+#if defined(CLANG_COMPILER) || (defined(_MSC_VER) && defined(__clang__)) || defined(INTEL_LLVM_COMPILER)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wformat-security"
 #elif defined(GCC_COMPILER)
@@ -87,7 +87,7 @@ namespace core::str
     }
 }
 
-#if defined(CLANG_COMPILER) || (defined(_MSC_VER) && defined(__clang__))
+#if defined(CLANG_COMPILER) || (defined(_MSC_VER) && defined(__clang__)) || defined(INTEL_LLVM_COMPILER)
 #pragma clang diagnostic pop
 #elif defined(GCC_COMPILER)
 #pragma GCC diagnostic pop
