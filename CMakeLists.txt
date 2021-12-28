@@ -28,7 +28,7 @@ add_library(${PROJECT_NAME} INTERFACE)
 target_link_libraries(${PROJECT_NAME} INTERFACE cssdk)
 
 # Add include directories to a target
-target_include_directories(${PROJECT_NAME} INTERFACE "include")
+target_include_directories(${PROJECT_NAME} SYSTEM INTERFACE "include")
 
 # Find header and source files
 file(GLOB_RECURSE CORE_PUBLIC_HEADERS CONFIGURE_DEPENDS "include/*.h")
