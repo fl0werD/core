@@ -291,13 +291,13 @@ namespace core
         CreateHooks();
     }
 
-    Menu::Menu(Menu&& other) noexcept
+    Menu::Menu(Menu&& other) noexcept // NOLINT(bugprone-exception-escape)
         : handler_(other.handler_)
     {
         *this = std::move(other);
     }
 
-    Menu& Menu::operator=(Menu&& other) noexcept
+    Menu& Menu::operator=(Menu&& other) noexcept // NOLINT(bugprone-exception-escape)
     {
         keys_ = other.keys_;
         handler_ = other.handler_;
