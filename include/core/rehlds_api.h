@@ -36,12 +36,21 @@ namespace core::rehlds_api
     /**
      * @brief Initializes the ReHLDS API. Returns true on success or false on failure.
     */
-    bool Init();
+    bool Init(bool silent = false);
+
+    /**
+     * @brief Returns \c true if the ReHLDS API was successfully initialized, otherwise \c false.
+    */
+    [[nodiscard]] inline bool Initialized()
+    {
+        return detail::rehlds_funcs && detail::rehlds_hook_chains && detail::rehlds_server_data &&
+            detail::rehlds_server_static && detail::rehlds_flight_recorder && detail::rehlds_api;
+    }
 
     /**
      * @brief Returns the major version number of ReHLDS API.
     */
-    inline int MajorVersion()
+    [[nodiscard]] inline int MajorVersion()
     {
         assert(detail::rehlds_api != nullptr);
         return detail::rehlds_api->GetMajorVersion();
@@ -50,7 +59,7 @@ namespace core::rehlds_api
     /**
      * @brief Returns the minor version number of ReHLDS API.
     */
-    inline int MinorVersion()
+    [[nodiscard]] inline int MinorVersion()
     {
         assert(detail::rehlds_api != nullptr);
         return detail::rehlds_api->GetMinorVersion();
@@ -59,7 +68,7 @@ namespace core::rehlds_api
     /**
      * @brief Returns a pointer to a \c ReHldsFuncs structure provided by the ReHLDS API.
     */
-    inline const cssdk::ReHldsFuncs* Funcs()
+    [[nodiscard]] inline const cssdk::ReHldsFuncs* Funcs()
     {
         assert(detail::rehlds_funcs != nullptr);
         return detail::rehlds_funcs;
@@ -68,7 +77,7 @@ namespace core::rehlds_api
     /**
      * @brief Returns a pointer to a \c RehldsHookChains class provided by the ReHLDS API.
     */
-    inline cssdk::IReHldsHookChains* HookChains()
+    [[nodiscard]] inline cssdk::IReHldsHookChains* HookChains()
     {
         assert(detail::rehlds_hook_chains != nullptr);
         return detail::rehlds_hook_chains;
@@ -77,7 +86,7 @@ namespace core::rehlds_api
     /**
      * @brief Returns a pointer to a \c RehldsServerStatic class provided by the ReHLDS API.
     */
-    inline cssdk::IReHldsServerStatic* ServerStatic()
+    [[nodiscard]] inline cssdk::IReHldsServerStatic* ServerStatic()
     {
         assert(detail::rehlds_server_static != nullptr);
         return detail::rehlds_server_static;
@@ -86,7 +95,7 @@ namespace core::rehlds_api
     /**
      * @brief Returns a pointer to a \c RehldsServerData</c> class provided by the ReHLDS API.
     */
-    inline cssdk::IReHldsServerData* ServerData()
+    [[nodiscard]] inline cssdk::IReHldsServerData* ServerData()
     {
         assert(detail::rehlds_server_data != nullptr);
         return detail::rehlds_server_data;
@@ -95,7 +104,7 @@ namespace core::rehlds_api
     /**
      * @brief Returns a pointer to a \c RehldsFlightRecorder class provided by the ReHLDS API.
     */
-    inline cssdk::IReHldsFlightRecorder* FlightRecorder()
+    [[nodiscard]] inline cssdk::IReHldsFlightRecorder* FlightRecorder()
     {
         assert(detail::rehlds_flight_recorder != nullptr);
         return detail::rehlds_flight_recorder;

@@ -28,6 +28,7 @@
 #include <metamod/config.h>
 #endif
 
+using namespace core;
 using namespace cssdk;
 
 namespace
@@ -37,13 +38,34 @@ namespace
 #else
     constexpr auto MODULE_NAME = metamod::PLUGIN_NAME;
 #endif
+
+    template <typename... Args>
+    void Error(const bool silent, const std::string& format, Args&&... args)
+    {
+        if (!silent) {
+            console::Message<false>(str::EMPTY); // Line feed
+            console::Error(format, std::forward<Args>(args)...);
+        }
+    }
+
+    template <typename... Args>
+    void Message(const bool silent, const std::string& format, Args&&... args)
+    {
+        if (!silent) {
+            console::Message<false>(format, std::forward<Args>(args)...);
+        }
+    }
 }
 
 namespace core::rehlds_api
 {
-    bool Init()
+    bool Init(const bool silent)
     {
         using namespace detail;
+
+        if (Initialized()) {
+            return true;
+        }
 
         //
         // Load engine module.
@@ -52,9 +74,7 @@ namespace core::rehlds_api
         auto* const engine_module = SysLoadModule(ENGINE_LIB);
 
         if (engine_module == nullptr) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Failed to locate engine module.\n");
-
+            Error(silent, "Failed to locate engine module.\n");
             return false;
         }
 
@@ -65,9 +85,7 @@ namespace core::rehlds_api
         const auto interface_factory = SysGetFactory(engine_module);
 
         if (interface_factory == nullptr) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Failed to locate interface factory in engine module.\n");
-
+            Error(silent, "Failed to locate interface factory in engine module.\n");
             return false;
         }
 
@@ -79,9 +97,8 @@ namespace core::rehlds_api
         auto* const interface_base = interface_factory(VREHLDS_HLDS_API_VERSION, &ret_code);
 
         if (ret_code != CreateInterfaceStatus::Ok || interface_base == nullptr) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Failed to retrieve \"%s\" interface from engine module; return code %d.\n",
-                           VREHLDS_HLDS_API_VERSION, static_cast<int>(ret_code));
+            Error(silent, "Failed to retrieve \"%s\" interface from engine module; return code %d.\n",
+                  VREHLDS_HLDS_API_VERSION, static_cast<int>(ret_code));
 
             return false;
         }
@@ -96,29 +113,27 @@ namespace core::rehlds_api
         const auto minor_version = MinorVersion();
 
         if (major_version != REHLDS_API_VERSION_MAJOR) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("ReHLDS API major version mismatch; expected %d, real %d.",
-                           REHLDS_API_VERSION_MAJOR, major_version);
+            Error(silent, "ReHLDS API major version mismatch; expected %d, real %d.",
+                  REHLDS_API_VERSION_MAJOR, major_version);
 
             if (major_version < REHLDS_API_VERSION_MAJOR) {
-                console::Message<false>("Please update the ReHLDS up to a major version API >= %d.\n",
-                                        REHLDS_API_VERSION_MAJOR);
+                Message(silent, "Please update the ReHLDS up to a major version API >= %d.\n",
+                        REHLDS_API_VERSION_MAJOR);
             }
             else {
-                console::Message<false>("Please update the %s up to a major version API >= %d.\n",
-                                        MODULE_NAME, REHLDS_API_VERSION_MAJOR);
+                Message(silent, "Please update the %s up to a major version API >= %d.\n",
+                        MODULE_NAME, REHLDS_API_VERSION_MAJOR);
             }
 
             return false;
         }
 
         if (minor_version < REHLDS_API_VERSION_MINOR) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("ReHLDS API minor version mismatch; expected %d, real %d.",
-                           REHLDS_API_VERSION_MINOR, minor_version);
+            Error(silent, "ReHLDS API minor version mismatch; expected %d, real %d.",
+                  REHLDS_API_VERSION_MINOR, minor_version);
 
-            console::Message<false>("Please update the ReHLDS up to a minor version API >= %d.\n",
-                                    REHLDS_API_VERSION_MINOR);
+            Message(silent, "Please update the ReHLDS up to a minor version API >= %d.\n",
+                    REHLDS_API_VERSION_MINOR);
 
             return false;
         }
@@ -142,7 +157,7 @@ namespace core::rehlds_api
         rehlds_flight_recorder = rehlds_api->GetFlightRecorder();
         assert(rehlds_flight_recorder != nullptr);
 
-        return true;
+        return Initialized();
     }
 }
 #endif

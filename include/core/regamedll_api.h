@@ -33,12 +33,20 @@ namespace core::regamedll_api
     /**
      * @brief Initializes the ReGameDLL API. Returns true on success or false on failure.
     */
-    bool Init();
+    bool Init(bool silent = false);
+
+    /**
+     * @brief Returns \c true if the ReGameDll API was successfully initialized, otherwise \c false.
+    */
+    [[nodiscard]] inline bool Initialized()
+    {
+        return detail::regamedll_funcs && detail::regamedll_hook_chains && detail::regamedll_api;
+    }
 
     /**
      * @brief Returns the major version number of ReGameDLL API.
     */
-    inline int MajorVersion()
+    [[nodiscard]] inline int MajorVersion()
     {
         assert(detail::regamedll_api != nullptr);
         return detail::regamedll_api->GetMajorVersion();
@@ -47,7 +55,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns the minor version number of ReGameDLL API.
     */
-    inline int MinorVersion()
+    [[nodiscard]] inline int MinorVersion()
     {
         assert(detail::regamedll_api != nullptr);
         return detail::regamedll_api->GetMinorVersion();
@@ -56,7 +64,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c RegamedllFuncs structure provided by the ReGameDLL API.
     */
-    inline const cssdk::RegamedllFuncs* Funcs()
+    [[nodiscard]] inline const cssdk::RegamedllFuncs* Funcs()
     {
         assert(detail::regamedll_funcs != nullptr);
         return detail::regamedll_funcs;
@@ -65,7 +73,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c RegamedllHookChains class provided by the ReGameDLL API.
     */
-    inline cssdk::IReGameDllHookChains* HookChains()
+    [[nodiscard]] inline cssdk::IReGameDllHookChains* HookChains()
     {
         assert(detail::regamedll_hook_chains != nullptr);
         return detail::regamedll_hook_chains;
@@ -74,7 +82,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c GameRules* class provided by the ReGameDLL API.
     */
-    inline auto* GameRules()
+    [[nodiscard]] inline auto* GameRules()
     {
         assert(detail::regamedll_api != nullptr);
         return detail::regamedll_api->GetGameRules();
@@ -83,7 +91,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c WeaponInfoStruct structure provided by the ReGameDLL API.
     */
-    inline cssdk::WeaponInfoStruct* GetWeaponInfo(const cssdk::WeaponId weapon)
+    [[nodiscard]] inline cssdk::WeaponInfoStruct* GetWeaponInfo(const cssdk::WeaponId weapon)
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -96,7 +104,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c WeaponInfoStruct structure provided by the ReGameDLL API.
     */
-    inline cssdk::WeaponInfoStruct* GetWeaponInfo(const char* const weapon)
+    [[nodiscard]] inline cssdk::WeaponInfoStruct* GetWeaponInfo(const char* const weapon)
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -109,7 +117,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c PlayerMove structure provided by the ReGameDLL API.
     */
-    inline cssdk::PlayerMove* GetPlayerMove()
+    [[nodiscard]] inline cssdk::PlayerMove* GetPlayerMove()
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -122,7 +130,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c WeaponSlotInfo structure provided by the ReGameDLL API.
     */
-    inline cssdk::WeaponSlotInfo* GetWeaponSlot(const cssdk::WeaponId weapon)
+    [[nodiscard]] inline cssdk::WeaponSlotInfo* GetWeaponSlot(const cssdk::WeaponId weapon)
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -135,7 +143,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c WeaponSlotInfo structure provided by the ReGameDLL API.
     */
-    inline cssdk::WeaponSlotInfo* GetWeaponSlot(const char* const weapon)
+    [[nodiscard]] inline cssdk::WeaponSlotInfo* GetWeaponSlot(const char* const weapon)
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -148,7 +156,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c ItemInfo structure provided by the ReGameDLL API.
     */
-    inline cssdk::ItemInfo* GetItemInfo(const cssdk::WeaponId weapon)
+    [[nodiscard]] inline cssdk::ItemInfo* GetItemInfo(const cssdk::WeaponId weapon)
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -161,7 +169,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c AmmoInfo structure provided by the ReGameDLL API.
     */
-    inline cssdk::AmmoInfo* GetAmmoInfo(const cssdk::AmmoType ammo)
+    [[nodiscard]] inline cssdk::AmmoInfo* GetAmmoInfo(const cssdk::AmmoType ammo)
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -174,7 +182,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c AmmoInfoStruct structure provided by the ReGameDLL API.
     */
-    inline cssdk::AmmoInfoStruct* GetAmmoInfoEx(const cssdk::AmmoType ammo)
+    [[nodiscard]] inline cssdk::AmmoInfoStruct* GetAmmoInfoEx(const cssdk::AmmoType ammo)
     {
         assert(detail::regamedll_api != nullptr);
 
@@ -187,7 +195,7 @@ namespace core::regamedll_api
     /**
      * @brief Returns a pointer to a \c AmmoInfoStruct structure provided by the ReGameDLL API.
     */
-    inline cssdk::AmmoInfoStruct* GetAmmoInfoEx(const char* const ammo)
+    [[nodiscard]] inline cssdk::AmmoInfoStruct* GetAmmoInfoEx(const char* const ammo)
     {
         assert(detail::regamedll_api != nullptr);
 

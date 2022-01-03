@@ -28,6 +28,7 @@
 #include <metamod/config.h>
 #endif
 
+using namespace core;
 using namespace cssdk;
 
 namespace
@@ -37,13 +38,34 @@ namespace
 #else
     constexpr auto MODULE_NAME = metamod::PLUGIN_NAME;
 #endif
+
+    template <typename... Args>
+    void Error(const bool silent, const std::string& format, Args&&... args)
+    {
+        if (!silent) {
+            console::Message<false>(str::EMPTY); // Line feed
+            console::Error(format, std::forward<Args>(args)...);
+        }
+    }
+
+    template <typename... Args>
+    void Message(const bool silent, const std::string& format, Args&&... args)
+    {
+        if (!silent) {
+            console::Message<false>(format, std::forward<Args>(args)...);
+        }
+    }
 }
 
 namespace core::regamedll_api
 {
-    bool Init()
+    bool Init(const bool silent)
     {
         using namespace detail;
+
+        if (Initialized()) {
+            return true;
+        }
 
         //
         // Load game module.
@@ -57,9 +79,7 @@ namespace core::regamedll_api
         auto* const game_module = SysLoadModule(game_module_path.c_str());
 
         if (game_module == nullptr) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Failed to locate game module.\n");
-
+            Error(silent, "Failed to locate game module.\n");
             return false;
         }
 
@@ -70,9 +90,7 @@ namespace core::regamedll_api
         const auto interface_factory = SysGetFactory(game_module);
 
         if (interface_factory == nullptr) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Failed to locate interface factory in game module.\n");
-
+            Error(silent, "Failed to locate interface factory in game module.\n");
             return false;
         }
 
@@ -84,9 +102,8 @@ namespace core::regamedll_api
         auto* const interface_base = interface_factory(VREGAMEDLL_API_VERSION, &ret_code);
 
         if (ret_code != CreateInterfaceStatus::Ok || interface_base == nullptr) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Failed to retrieve \"%s\" interface from game module; return code %d.\n",
-                           VREGAMEDLL_API_VERSION, static_cast<int>(ret_code));
+            Error(silent, "Failed to retrieve \"%s\" interface from game module; return code %d.\n",
+                  VREGAMEDLL_API_VERSION, static_cast<int>(ret_code));
 
             return false;
         }
@@ -101,29 +118,27 @@ namespace core::regamedll_api
         const auto minor_version = MinorVersion();
 
         if (major_version != REGAMEDLL_API_VERSION_MAJOR) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("ReGameDll API major version mismatch; expected %d, real %d.",
-                           REGAMEDLL_API_VERSION_MAJOR, major_version);
+            Error(silent, "ReGameDll API major version mismatch; expected %d, real %d.",
+                  REGAMEDLL_API_VERSION_MAJOR, major_version);
 
             if (major_version < REGAMEDLL_API_VERSION_MAJOR) {
-                console::Message<false>("Please update the ReGameDll up to a major version API >= %d.\n",
-                                        REGAMEDLL_API_VERSION_MAJOR);
+                Message(silent, "Please update the ReGameDll up to a major version API >= %d.\n",
+                        REGAMEDLL_API_VERSION_MAJOR);
             }
             else {
-                console::Message<false>("Please update the %s up to a major version API >= %d.\n",
-                                        MODULE_NAME, REGAMEDLL_API_VERSION_MAJOR);
+                Message(silent, "Please update the %s up to a major version API >= %d.\n",
+                        MODULE_NAME, REGAMEDLL_API_VERSION_MAJOR);
             }
 
             return false;
         }
 
         if (minor_version < REGAMEDLL_API_VERSION_MINOR) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("ReGameDll API minor version mismatch; expected %d, real %d.",
-                           REGAMEDLL_API_VERSION_MINOR, minor_version);
+            Error(silent, "ReGameDll API minor version mismatch; expected %d, real %d.",
+                  REGAMEDLL_API_VERSION_MINOR, minor_version);
 
-            console::Message<false>("Please update the ReGameDll up to a minor version API >= %d.\n",
-                                    REGAMEDLL_API_VERSION_MINOR);
+            Message(silent, "Please update the ReGameDll up to a minor version API >= %d.\n",
+                    REGAMEDLL_API_VERSION_MINOR);
 
             return false;
         }
@@ -133,9 +148,7 @@ namespace core::regamedll_api
         //
 
         if (!regamedll_api->CheckCsEntityVersion(CS_ENTITY_API_INTERFACE_VERSION)) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Interface CCSEntity API version '%s' not found.\n", CS_ENTITY_API_INTERFACE_VERSION);
-
+            Error(silent, "Interface CCSEntity API version '%s' not found.\n", CS_ENTITY_API_INTERFACE_VERSION);
             return false;
         }
 
@@ -144,9 +157,7 @@ namespace core::regamedll_api
         //
 
         if (!regamedll_api->CheckGameRulesVersion(GAME_RULES_API_INTERFACE_VERSION)) {
-            console::Message<false>(str::EMPTY); // Line feed
-            console::Error("Interface CGameRules API version '%s' not found.\n", GAME_RULES_API_INTERFACE_VERSION);
-
+            Error(silent, "Interface CGameRules API version '%s' not found.\n", GAME_RULES_API_INTERFACE_VERSION);
             return false;
         }
 
@@ -160,7 +171,7 @@ namespace core::regamedll_api
         regamedll_hook_chains = regamedll_api->GetHookChains();
         assert(regamedll_hook_chains != nullptr);
 
-        return true;
+        return Initialized();
     }
 }
 #endif
