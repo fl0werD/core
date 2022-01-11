@@ -37,11 +37,7 @@ namespace core::str
     namespace detail
     {
         template <typename T>
-#ifndef MSVC_COMPILER
-        [[gnu::const]]
-#endif
-        decltype(auto)
-        Cast(T&& v)
+        ATTR_CONST decltype(auto) Cast(T&& v)
         {
             if constexpr (type_traits::IsString<T>()) {
                 return std::forward<T>(v).c_str();
